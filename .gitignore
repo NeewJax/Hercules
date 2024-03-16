@@ -1,0 +1,14 @@
+#| Folders |#
+
+.github
+node_modules
+
+tmp
+jadibts
+pluginpilot
+
+#| Files |#
+
+package-lock.json
+database.json
+MysticSession
