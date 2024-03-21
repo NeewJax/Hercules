@@ -1,19 +1,64 @@
-import fetch from 'node-fetch'
-let handler = async(m, { conn, text }) => {
-if (!text) throw `*[❗𝐈𝐍𝐅𝐎❗] Insira o nome de alguma canção para buscar*`
-try {
-let res = await fetch(`https://api.lolhuman.xyz/api/spotifysearch?apikey=${lolkeysapi}&query=${text}`)
-let json = await res.json()
-let { link } = json.result[0]
-let res2 = await fetch(`https://api.lolhuman.xyz/api/spotify?apikey=${lolkeysapi}&url=${link}`)
-let json2 = await res2.json()
-let { thumbnail, title, artists } = json2.result
-let spotifyi = `❒═════❬ SPOTIFY ❭═════╾❒\n┬\n├‣✨ *TITULO:* ${title}\n┴\n┬\n├‣🗣️ *ARTISTA:* ${artists}\n┴\n┬\n├‣🌐 *URL*: ${link}\n┴\n┬\n├‣💚 *URL DE DOWNLOAD:* ${json2.result.link}\n┴`
-conn.sendFile(m.chat, thumbnail, 'error.jpg', spotifyi, m)
-let aa = await conn.sendMessage(m.chat, { audio: { url: json2.result.link }, fileName: `error.mp3`, mimetype: 'audio/mp4' }, { quoted: m })  
-if (!aa) return conn.sendFile(m.chat, json2.result.link, 'error.mp3', null, m, false, { mimetype: 'audio/mp4' }) 
-} catch {
-throw '*[❗𝐈𝐍𝐅𝐎❗] Erro... não foi possível pesquisar a música ou a página de ajuda para pesquisar a música está inoperante, tente novamente mais tarde.*'
-}}
-handler.command = /^(spotify|music)$/i
-export default handler
+import fetch from 'node-fetch';
+import fs from 'fs';
+import Spotify from 'spotifydl-x';
+
+// Assuming you have defined 'wait', 'waitt', 'waittt', 'waitttt', 'waittttt', 'lolkeysapi', and 'wm' somewhere in your code.
+
+const credentials = { clientId: 'acc6302297e040aeb6e4ac1fbdfd62c3', clientSecret: '0e8439a1280a43aba9a5bc0a16f3f009' };
+const spotify = new Spotify.default(credentials);
+
+let handler = async (m, { conn, usedPrefix, command, text }) => {
+    let fkontak = { "key": { "participants": "0@s.whatsapp.net", "remoteJid": "status@broadcast", "fromMe": false, "id": "Halo" }, "message": { "contactMessage": { "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` } }, "participant": "0@s.whatsapp.net" };
+    if (!text) return await conn.reply(m.chat, `${wait} ⊱ *${usedPrefix + command} Bellyache*`, fkontak, m);
+
+    try {
+        const { key } = await conn.sendMessage(m.chat, { text: wait }, { quoted: fkontak });
+        await conn.sendMessage(m.chat, { text: waitt, edit: key });
+        await conn.sendMessage(m.chat, { text: waittt, edit: key });
+        await conn.sendMessage(m.chat, { text: waitttt, edit: key });
+
+        let resDL = await fetch(`https://api.lolhuman.xyz/api/spotifysearch?apikey=${lolkeysapi}&query=${text}`);
+        let jsonDL = await resDL.json();
+        let linkDL = jsonDL.result[0].link;
+        let spty = await spotifydl(linkDL);
+
+        const getRandom = (ext) => {
+            return `${Math.floor(Math.random() * 10000)}${ext}`;
+        };
+
+        let randomName = getRandom(".mp3");
+        const filePath = `./tmp/${randomName}`;
+        fs.writeFileSync(filePath, spty.audio);
+
+        let spotifyi = `✨ *Title:*
+_${spty.data.name}_
+
+🗣️ *Artists:*
+_${spty.data.artists}_
+
+🌐 *Link:*
+_${linkDL}_
+
+🎶 *Downloading...*
+${wm}`;
+
+        await conn.sendFile(m.chat, spty.data.cover_url, 'error.jpg', spotifyi, fkontak, m);
+        await conn.sendMessage(m.chat, { document: fs.readFileSync(`./tmp/${randomName}`), fileName: `${spty.data.name}.mp3`, mimetype: "audio/mpeg", thumbnail: jsonDL.result[0] }, { quoted: m });
+        await conn.sendMessage(m.chat, { text: waittttt, edit: key });
+        handler.limit = 1;
+    } catch (e) {
+        await conn.reply(m.chat, `${wm}`, fkontak, m);
+        console.log(`Error: ${e}`);
+        handler.limit = false;
+    }
+}
+
+handler.command = /^(spotify|music)$/i;
+export default handler;
+
+async function spotifydl(url) {
+    const res = await spotify.getTrack(url).catch(() => {
+        return { error: 'Failed to download' };
+    });
+    return { data: res, audio: await spotify.downloadTrack(url) };
+}
