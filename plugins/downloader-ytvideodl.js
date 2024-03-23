@@ -42,5 +42,4 @@ let handler = async (m, { conn, args, isPrems, isOwner }) => {
 handler.help = ["ytd"];
 handler.tags = ["downloader"];
 handler.command = ["videodoc", "documentvid", "videodocumento"];
-handler.exp = 3;
 export default handler;
