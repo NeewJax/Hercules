@@ -5,11 +5,11 @@ import uploadImage from '../lib/uploadImage.js';
 import { Sticker } from 'wa-sticker-formatter';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
-  let stiker = false;
-  let user = db.data.users[m.sender];
+  let stiker = false
+  let user = db.data.users[m.sender]
   try {
     let q = m.quoted ? m.quoted : m;
-    let mime = (q.msg || q).mimetype || q.mediaType || '';
+    let mime = (q.msg || q).mimetype || q.mediaType || ''
     await conn.reply(m.chat, getRandomPhrase(), m);
     if (/webp/g.test(mime)) {
       let img = await q.download?.();
@@ -26,21 +26,12 @@ let handler = async (m, { conn, args, usedPrefix, command }) => {
     } else if (args[0] && isUrl(args[0])) {
       let [packname, author] = args[0].split('|');
       stiker = await sticker(false, args[0], packname || '', author || global.author);
-    } else if (q.msg?.stickerMessage) {
-      // Handle quoted sticker
-      let stickerMsg = q.msg.stickerMessage;
-      let stickerData = await conn.downloadMediaMessage(stickerMsg);
-      stiker = await createSticker(stickerData, true, '', '');
     } else {
       throw `*[❗𝐈𝐍𝐅𝐎❗] Responda a um vídeo, imagem ou link de terminação .jpg NA QUAL SERA CONVERTIDO EM STICKERS, DEVE RESPONDER OU USAR O COMANDO ${usedPrefix + command}*`;
     }
   } catch (error) {
     console.log(error);
-    if (error === '*[❗𝐈𝐍𝐅𝐎❗] Responda a um vídeo, imagem ou link de terminação .jpg NA QUAL SERA CONVERTIDO EM STICKERS, DEVE RESPONDER OU USAR O COMANDO ${usedPrefix + command}*') {
-      // Error due to no supported media found, do nothing
-    } else {
-      stiker = false;
-    }
+    stiker = `*[❗𝐈𝐍𝐅𝐎❗] Ocorreu um erro, tente novamente. responda a um vídeo, imagem ou insira um link de uma imagem com terminação .jpg que sera convertido para figurinha*`;
   } finally {
     m.reply(stiker);
   }

@@ -51,7 +51,8 @@ const getRandomPhrase = () => {
     'Tá achando que a vida é uma uva? kkkk meme, tô enviando já...',
     'aff, espera ai rapidinho que tô com preguiça',
     'vou já mandar sua figurinha... mas aceito um pix tb viu? kkkk',
-    'opaa, pera que já mando sua figurinha'
+    'opaa, pera que já mando sua figurinha',
+    'blip blop blup... mando já!'
   ];
   return phrases[Math.floor(Math.random() * phrases.length)];
 };
