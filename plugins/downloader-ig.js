@@ -7,7 +7,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     m.reply(`*✅ Obtendo link de download, por favor aguarde um momento...*`);
 
     try {
-        const browser = await puppeteer.launch();
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // using --no-sandbox to launch on aws instance
         const page = await browser.newPage();
         await page.goto(`http://thejaxapi.rf.gd/instagram/insta-downloader.php?link=${args[0]}`);
 
