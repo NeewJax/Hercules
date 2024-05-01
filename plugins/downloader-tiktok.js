@@ -14,26 +14,26 @@ let handler = async (m, { conn, text, args, usedPrefix, command }) => {
         let prep = generateWAMessageFromContent(m.chat, { extendedTextMessage: { text: texto, contextInfo: { externalAdReply: { title: 'THE HERCULES BOT', body: null, thumbnail: imagen1, sourceUrl: '' }, mentionedJid: [m.sender] } } }, aa)
         await conn.relayMessage(m.chat, prep.message, { messageId: prep.key.id, mentions: [m.sender] })
         const dataF = await tiktok.v1(args[0])
-        let desc1 = `*Oii, 🌟*\n*📽️ aqui está o seu vídeo do tiktok*\n\n*Lembre-se que se você deseja converter o vídeo em áudio, pode fazê-lo facilmente respondendo ao vídeo com o comando #tomp3 🎧.*`
+        let desc1 = `aqui está o seu vídeo do tiktok\nSe você quiser apenas o áudio respondendo o video com o comando: .tomp3`
         await conn.sendMessage(m.chat, { video: { url: dataF.play }, caption: desc1 }, { quoted: m })
     } catch (e1) {
         try {
             const tTiktok = await tiktokdlF(args[0])
             //let desc2 = `🔗 *Url:* ${tTiktok.video}`    
-            let desc2 = `*Oii, 🌟*\n*📽️ aqui está o seu vídeo do tiktok*\n\n*Lembre-se que se você deseja converter o vídeo em áudio, pode fazê-lo facilmente respondendo ao vídeo com o comando #tomp3 🎧.*`
+            let desc2 = `aqui está o seu vídeo do tiktok\nSe você quiser apenas o áudio respondendo o video com o comando: .tomp3`
             await conn.sendMessage(m.chat, { video: { url: tTiktok.video }, caption: desc2 }, { quoted: m })
         } catch (e2) {
             try {
                 let p = await fg.tiktok(args[0])
                 //let te = `*𝚄𝚂𝙴𝚁𝙽𝙰𝙼𝙴:* ${p.author || 'Indefinido'}`
-                let te = `*Oii, 🌟*\n*📽️ aqui está o seu vídeo do tiktok*\n\n*Lembre-se que se você deseja converter o vídeo em áudio, pode fazê-lo facilmente respondendo ao vídeo com o comando #tomp3 🎧.*`
+                let te = `aqui está o seu vídeo do tiktok\nSe você quiser apenas o áudio respondendo o video com o comando: .tomp3`
                 await conn.sendMessage(m.chat, { video: { url: p.nowm }, caption: te }, { quoted: m })
             } catch (e3) {
                 try {
                     const { author: { nickname }, video, description } = await tiktokdl(args[0]).catch(async _ => await tiktokdlv2(args[0])).catch(async _ => await tiktokdlv3(args[0]))
                     const url = video.no_watermark2 || video.no_watermark || 'https://tikcdn.net' + video.no_watermark_raw || video.no_watermark_hd
                     //let cap = `*𝙽𝙸𝙲𝙺𝙽𝙰𝙼𝙴:* ${nickname || 'Indefinido'}`
-                    let cap = `*Oii, 🌟*\n*📽️ aqui está o seu vídeo do tiktok*\n\n*Lembre-se que se você deseja converter o vídeo em áudio, pode fazê-lo facilmente respondendo ao vídeo com o comando #tomp3 🎧.*`
+                    let cap = `aqui está o seu vídeo do tiktok\nSe você quiser apenas o áudio respondendo o video com o comando: .tomp3`
                     await conn.sendMessage(m.chat, { video: { url: url }, caption: cap }, { quoted: m })
                 } catch {
                     throw `*[❗𝐈𝐍𝐅𝐎❗] Sinto muito, teve um erro ao baixar o seu vídeo, você poderia tentar novamente? :(*`
