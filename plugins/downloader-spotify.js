@@ -1,11 +1,10 @@
 import fetch from 'node-fetch';
 import fs from 'fs';
-import Spotify from 'spotifydl-x';
 
 // Assuming you have defined 'wait', 'waitt', 'waittt', 'waitttt', 'waittttt', 'lolkeysapi', and 'wm' somewhere in your code.
 
 const credentials = { clientId: 'acc6302297e040aeb6e4ac1fbdfd62c3', clientSecret: '0e8439a1280a43aba9a5bc0a16f3f009' };
-const spotify = new Spotify.default(credentials);
+//const spotify = new Spotify.default(credentials);
 
 let handler = async (m, { conn, usedPrefix, command, text }) => {
     let fkontak = { "key": { "participants": "0@s.whatsapp.net", "remoteJid": "status@broadcast", "fromMe": false, "id": "Halo" }, "message": { "contactMessage": { "vcard": `BEGIN:VCARD\nVERSION:3.0\nN:Sy;Bot;;;\nFN:y\nitem1.TEL;waid=${m.sender.split('@')[0]}:${m.sender.split('@')[0]}\nitem1.X-ABLabel:Ponsel\nEND:VCARD` } }, "participant": "0@s.whatsapp.net" };
@@ -55,10 +54,3 @@ ${wm}`;
 
 handler.command = /^(spotify|music)$/i;
 export default handler;
-
-async function spotifydl(url) {
-    const res = await spotify.getTrack(url).catch(() => {
-        return { error: 'Failed to download' };
-    });
-    return { data: res, audio: await spotify.downloadTrack(url) };
-}

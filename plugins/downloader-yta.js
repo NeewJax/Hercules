@@ -1,12 +1,12 @@
-import { youtubedl, youtubedlv2, youtubedlv3 } from '@bochilteam/scraper';
+import { youtubedl, youtubedlv2 } from '@bochilteam/scraper';
 import fetch from 'node-fetch';
 import yts from 'yt-search';
 import ytdl from 'ytdl-core';
 import axios from 'axios';
+import { bestFormat, getUrlDl } from '../lib/y2dl.js';
 
-let handler = async (m, { text, conn, args, usedPrefix, command }) => {
-  if (!args[0]) throw '*[❗𝐈𝐍𝐅𝐎❗] Insira o comando e o link de um vídeo no youtube!*';
-
+const handler = async (m, { text, conn, args, usedPrefix, command }) => {
+  if (!args[0]) throw 'Texto não fornecido.';
   let youtubeLink = '';
   if (args[0].includes('you')) {
     youtubeLink = args[0];
@@ -14,62 +14,64 @@ let handler = async (m, { text, conn, args, usedPrefix, command }) => {
     const index = parseInt(args[0]) - 1;
     if (index >= 0) {
       if (Array.isArray(global.videoList) && global.videoList.length > 0) {
-        const matchingItem = global.videoList.find(item => item.from === m.sender);
+        const matchingItem = global.videoList.find((item) => item.from === m.sender);
         if (matchingItem) {
           if (index < matchingItem.urls.length) {
             youtubeLink = matchingItem.urls[index];
           } else {
-            throw `*[❗] Nenhum link encontrado para esse número, digite um número entre 1 e ${matchingItem.urls.length}*`;
+            throw 'Link inválido.';
           }
         } else {
-          throw `*[❗] Para poder usar este comando assim (${usedPrefix + command} <numero>), Pesquise vídeos com o comando ${usedPrefix}playlist <texto>*`;
+          throw 'Você não tem uma lista de reprodução.';
         }
       } else {
-        throw `*[❗] Para poder usar este comando assim (${usedPrefix + command} <numero>), Pesquise vídeos com o comando ${usedPrefix}playlist <texto>*`;
+        throw 'Você não tem uma lista de reprodução.';
       }
     }
   }
-
-  await m.reply(`*_⏳Seu áudio está sendo baixado...⏳_*\n\n*◉ Se o seu áudio não for enviado, tente usar o comando #playdoc #play.2 ou #ytmp4doc ◉*`);
-
+  const { key } = await conn.sendMessage(m.chat, { text: 'Processando...' }, { quoted: m });
   try {
-    let q = '128kbps';
-    let v = youtubeLink;
-    const yt = await youtubedl(v).catch(async _ => await youtubedlv2(v)).catch(async _ => await youtubedlv3(v));
-    const dl_url = await yt.audio[q].download();
-    const ttl = await yt.title;
-    const size = await yt.audio[q].fileSizeH;
-
-    const response = await axios.head(dl_url); // Obter informações sobre o arquivo
-
-    // Verificar o tamanho do arquivo para determinar se é adequado para o iPhone
-    const fileSize = response.headers['content-length'];
-    const isCompatibleWithiPhone = fileSize <= 10 * 1024 * 1024; // Limite de tamanho em bytes (10 MB)
-
-    if (isCompatibleWithiPhone) {
-      await conn.sendMessage(m.chat, { audio: { url: dl_url }, seconds: '1934.4', ptt: true, mimetype: 'audio/mpeg', fileName: `${ttl}.mp3` }, { quoted: m });
+    const formats = await bestFormat(youtubeLink, 'audio');
+    const dl_url = await getUrlDl(formats.url);
+    const buff = await getBuffer(dl_url.download);
+    const yt_1 = await youtubedl(youtubeLink).catch(async (_) => await youtubedlv2(youtubeLink));
+    const ttl_1 = `${yt_1?.title ? yt_1.title : 'Audio'}`;
+    const fileSizeInBytes = buff.byteLength;
+    const fileSizeInKB = fileSizeInBytes / 1024;
+    const fileSizeInMB = fileSizeInKB / 1024;
+    const roundedFileSizeInMB = fileSizeInMB.toFixed(2);
+    if (fileSizeInMB > 50) {
+      await conn.sendMessage(m.chat, { document: buff, caption: `Título: ${ttl_1}\nTamanho: ${roundedFileSizeInMB} MB`, fileName: ttl_1 + '.mp3', mimetype: 'audio/mpeg' }, { quoted: m });
+      await conn.sendMessage(m.chat, { text: 'Arquivo grande, envio como documento.', edit: key }, { quoted: m });
     } else {
-      await conn.sendFile(m.chat, dl_url, `${ttl}.mp3`, null, m, false, { mimetype: 'audio/mp4' });
+      await conn.sendMessage(m.chat, { audio: buff, caption: `Título: ${ttl_1}\nTamanho: ${roundedFileSizeInMB} MB`, fileName: ttl_1 + '.mp3', mimetype: 'audio/mpeg' }, { quoted: m });
+      await conn.sendMessage(m.chat, { text: 'Arquivo de áudio enviado.', edit: key }, { quoted: m });
     }
   } catch {
-    try {
-      let lolhuman = await fetch(`https://api.lolhuman.xyz/api/ytaudio2?apikey=${lolkeysapi}&url=${youtubeLink}`);
-      let lolh = await lolhuman.json();
-      let n = lolh.result.title || 'error';
-      await conn.sendMessage(m.chat, { audio: { url: lolh.result.link }, seconds: '1934.4', ptt: true, mimetype: 'audio/mpeg', fileName: `${n}.mp3` }, { quoted: m });
-    } catch {
-      try {
-        let searchh = await yts(youtubeLink);
-        let __res = searchh.all.map(v => v).filter(v => v.type == "video");
-        let infoo = await ytdl.getInfo('https://youtu.be/' + __res[0].videoId);
-        let ress = await ytdl.chooseFormat(infoo.formats, { filter: 'audioonly' });
-        conn.sendMessage(m.chat, { audio: { url: ress.url }, seconds: '1934.4', ptt: true, mimetype: 'audio/mpeg', fileName: `${__res[0].title}.mp3` }, { quoted: m });
-      } catch {
-        await conn.reply(m.chat, '*[❗] Erro não foi possível baixar o seu áudio!*', m);
-      }
-    }
+    console.log('Erro ao processar o áudio');
+    throw 'Erro ao processar o áudio.';
   }
 };
 
-handler.command = /^fgmp3|dlmp3|getaud|yt(a|mp3)$/i;
+handler.command = /^(audio|fgmp3|dlmp3|getaud|yt(a|mp3))$/i;
 export default handler;
+
+const getBuffer = async (url, options) => {
+  try {
+    options ? options : {};
+    const res = await axios({
+      method: 'get',
+      url,
+      headers: {
+        'DNT': 1,
+        'Upgrade-Insecure-Request': 1,
+      },
+      ...options,
+      responseType: 'arraybuffer',
+    });
+
+    return res.data;
+  } catch (e) {
+    console.log(`Error : ${e}`);
+  }
+};

@@ -3,7 +3,7 @@ import axios from 'axios'
 import cheerio from 'cheerio'
 import { tiktok } from "@xct007/frieren-scraper";
 import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
-import { tiktokdl, tiktokdlv2, tiktokdlv3 } from '@bochilteam/scraper'
+import { tiktokdl } from '@bochilteam/scraper'
 let handler = async (m, { conn, text, args, usedPrefix, command }) => {
     if (!text) throw `*[❗𝐈𝐍𝐅𝐎❗] LINK DE TIKTOK FALTANDO, POR FAVOR INSIRA UM VÍDEO DE TIKTOK*\n\n*—◉ Exemplo:*\n*${usedPrefix + command}* https://vm.tiktok.com/ZMYWFhKt2/`
     if (!/(?:https:?\/{2})?(?:w{3}|vm|vt|t)?\.?tiktok.com\/([^\s&]+)/gi.test(text)) throw `*[❗𝐈𝐍𝐅𝐎❗] LINK DE TIKTOK INCORRETO, Por favor insira um de algum vídeo do tiktok*\n\n*—◉ Exemplo:*\n*${usedPrefix + command}* https://vm.tiktok.com/ZMFb4BXVd/`

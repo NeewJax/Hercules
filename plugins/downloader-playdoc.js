@@ -2,7 +2,7 @@ import fetch from "node-fetch"
 import yts from "yt-search"
 import ytdl from 'ytdl-core'
 import axios from 'axios'
-import { youtubedl, youtubedlv2, youtubedlv3 } from '@bochilteam/scraper'
+import { youtubedl, youtubedlv2 } from '@bochilteam/scraper'
 let handler = async (m, { conn, command, args, text, usedPrefix }) => {
 if (!text) throw `*[❗𝐈𝐍𝐅𝐎❗] Nome da canção faltante, por favor insira o comando mais o nome/titulo de alguma canção*\n\n*—◉ Exemplo:*\n*${usedPrefix + command} Good Feeling - Flo Rida* `
 try {
