@@ -2,7 +2,7 @@ import fg from 'api-dylux'
 import axios from 'axios'
 import cheerio from 'cheerio'
 import { tiktok } from "@xct007/frieren-scraper";
-import { generateWAMessageFromContent } from '@adiwajshing/baileys'
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import { tiktokdl, tiktokdlv2, tiktokdlv3 } from '@bochilteam/scraper'
 let handler = async (m, { conn, text, args, usedPrefix, command }) => {
     if (!text) throw `*[❗𝐈𝐍𝐅𝐎❗] LINK DE TIKTOK FALTANDO, POR FAVOR INSIRA UM VÍDEO DE TIKTOK*\n\n*—◉ Exemplo:*\n*${usedPrefix + command}* https://vm.tiktok.com/ZMYWFhKt2/`

@@ -1,6 +1,6 @@
 /* ⚠ POR FAVOR NO MODIFIQUES NADA DE AQUÍ ⚠ */
 
-import { generateWAMessageFromContent } from '@adiwajshing/baileys'
+import { generateWAMessageFromContent } from '@whiskeysockets/baileys'
 import fs from 'fs'
 let handler = async (m, { conn, usedPrefix, command }) => {
 let name = await conn.getName(m.sender)

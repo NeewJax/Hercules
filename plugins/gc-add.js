@@ -1,6 +1,6 @@
-let { generateWAMessageFromContent, prepareWAMessageMedia, proto } = (await import('@adiwajshing/baileys')).default
+let { generateWAMessageFromContent, prepareWAMessageMedia, proto } = (await import('@whiskeysockets/baileys')).default
 import fetch from 'node-fetch'
-const { getBinaryNodeChild, getBinaryNodeChildren } = (await import('@adiwajshing/baileys')).default
+const { getBinaryNodeChild, getBinaryNodeChildren } = (await import('@whiskeysockets/baileys')).default
 let handler = async (m, { conn, text, participants, args }) => {  
 if (!global.db.data.settings[conn.user.jid].restrict) throw '*[ ⚠️ ] O DONO RESTRINGIU (enable restrict / disable restrict) O USO DESSE COMANDO*'
 if (!args[0]) throw '*[❗] digite o número do usuário que você deseja adicionar*'    

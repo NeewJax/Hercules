@@ -1,6 +1,6 @@
 import fetch from 'node-fetch'
 import PDFDocument from "pdfkit"
-import { extractImageThumb } from "@adiwajshing/baileys"
+import { extractImageThumb } from "@whiskeysockets/baileys"
 let handler = async (m, { conn, text, usedPrefix, command, args }) => {
 if (!db.data.chats[m.chat].modohorny && m.isGroup) throw '*[❗𝐈𝐍𝐅𝐎❗] Os comandos +18 estão desabilitados para este grupo, Se você é um admin e deseja ativar... digite #enable modohorny*'
 if (!text) throw `*[❗] Insira algum nome de uma cantegoria hentai. Exemplo: ${usedPrefix + command} miku*`
