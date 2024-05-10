@@ -390,7 +390,7 @@ global.reloadHandler = async function(restatConn) {
   conn.spromote = '*[ ℹ️ ] @user foi promovido a admin!*';
   conn.sdemote = '*[ ℹ️ ] @user virou membro comum*';
   conn.sDesc = '*[ ℹ️ ] A descrição do grupo foi modificada*';
-  conn.sSubject = '*[ ℹ️ ] O nome do grupo foi modificado*';
+  conn.sSubject = '';
   conn.sIcon = '*[ ℹ️ ] Nova foto do grupo*';
   conn.sRevoke = '*[ ℹ️ ] O link de convite do grupo foi alterado*';
 

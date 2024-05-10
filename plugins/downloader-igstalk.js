@@ -1,38 +1,60 @@
-import axios from 'axios'
-import cheerio from 'cheerio'
-import fetch from 'node-fetch'
-let handler = async (m, { conn, args, usedPrefix, command }) => {
-if (!args[0]) throw `*[❗𝐈𝐍𝐅𝐎❗] Por favor, insira um nome de um usuário que tenha um perfil público do instagram. Exemplo: ${usedPrefix + command} cristiano*`
-let res = await igstalk(args[0].replace(/^@/, ''))
-let res2 = await fetch(`https://api.lolhuman.xyz/api/stalkig/${args[0].replace(/^@/, '')}?apikey=${lolkeysapi}`)
-let res3 = await res2.json()
-let json = JSON.parse(JSON.stringify(res))
-let iggs = `
-▢ *Usuário:* ${json.username}
-▢ *Nome:* ${json.fullname}
-▢ *Seguidores:* ${json.followers}
-▢ *Seguindo:* ${json.following}
-▢ *Publicações:* ${json.post}
-▢ *Link:* https://instagram.com/${json.username.replace(/^@/, '')}
-▢ *Biográfia:* ${json.bio}`.trim() 
-let aa = `${res3.result.photo_profile || res.profile}`
-await conn.sendFile(m.chat, aa, 'error.jpg', iggs, m)}
+import fetch from 'node-fetch';
+import puppeteer from 'puppeteer';
+import axios from 'axios';
+
+let handler = async (m, { conn, args, command, usedPrefix }) => {
+    if (!args[0]) throw `Coloque um usuário do instagram. Exemplo: *${usedPrefix + command} cristiano*`;
+    m.reply(`*✅ Stalkeando... por favor, aguarde um momento...*`);
+
+    try {
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // using --no-sandbox to launch on aws instance
+        const page = await browser.newPage();
+        await page.goto(`http://thejaxapi.rf.gd/api/instagram/insta-stalker.php?user=${args[0]}`);
+
+        // Espera até que o elemento com o link de download esteja disponível na página
+        await page.waitForSelector('pre', { timeout: 60000 }); // Aumentando o tempo limite para 60 segundos
+
+        // Obtém o link de download diretamente do texto dentro do elemento 'pre'
+        const downloadLink = await page.$eval('pre', element => {
+            const json = JSON.parse(element.textContent);
+            return json.data.profile_picture_url;
+        });
+
+        const globalData = await page.$eval('pre', element => {
+            const json = JSON.parse(element.textContent);
+            return {
+                user: json.data.username,
+                id_instagram: json.data.id_instagram,
+                account_type: json.data.account_type,
+                full_name: json.data.full_name,
+                new_user: json.data.new_user,
+                is_private: json.data.is_private,
+                secondary_account: json.data.secondary_account,
+                biography: json.data.biography,
+                external_url: json.data.external_url,
+                category: json.data.category,
+                follower_count: json.data.follower_count,
+                following_count: json.data.following_count,
+                total_igtv_videos: json.data.total_igtv_videos
+
+            };
+        });
+
+        await browser.close();
+
+        // Construir o caption (legenda)
+        const caption = `Usuário: ${globalData.user}\nID: ${globalData.id_instagram}\nTipo de conta: ${globalData.account_type}\nNome completo: ${globalData.full_name}\nNovo usuário: ${globalData.new_user}\nConta privada: ${globalData.is_private}\nConta secundária: ${globalData.secondary_account}\nBiografia: ${globalData.biography}\nURL externa: ${globalData.external_url}\nCategoria: ${globalData.category}\nSeguidores: ${globalData.follower_count}\nSeguindo: ${globalData.following_count}\nTotal de vídeos IGTV: ${globalData.total_igtv_videos}`;
+
+        // Enviar a imagem com o caption
+        await conn.sendFile(m.chat, downloadLink, 'instagram_profile_picture.jpg', caption, m);
+
+
+    } catch (error) {
+        console.error('Erro ao baixar vídeo:', error);
+        throw `ixe, conseguir baixar não viu...`;
+    }
+};
 handler.help = ['igstalk <username>']
 handler.tags = ['internet']
 handler.command = /^(igstalk)$/i
 export default handler
-
-async function igstalk(Username) {
-return new Promise((resolve, reject) => {
-axios.get('https://dumpor.com/v/'+Username, {
-headers: { "cookie": "_inst_key=SFMyNTY.g3QAAAABbQAAAAtfY3NyZl90b2tlbm0AAAAYWGhnNS1uWVNLUU81V1lzQ01MTVY2R0h1.fI2xB2dYYxmWqn7kyCKIn1baWw3b-f7QvGDfDK2WXr8", "user-agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36" }}).then(res => {
-const $ = cheerio.load(res.data)
-const result = {
-profile: $('#user-page > div.user > div.row > div > div.user__img').attr('style').replace(/(background-image: url\(\'|\'\);)/gi, ''),
-fullname: $('#user-page > div.user > div > div.col-md-4.col-8.my-3 > div > a > h1').text(),
-username: $('#user-page > div.user > div > div.col-md-4.col-8.my-3 > div > h4').text(),
-post: $('#user-page > div.user > div > div.col-md-4.col-8.my-3 > ul > li:nth-child(1)').text().replace(' Posts',''),
-followers: $('#user-page > div.user > div > div.col-md-4.col-8.my-3 > ul > li:nth-child(2)').text().replace(' Followers',''),
-following: $('#user-page > div.user > div > div.col-md-4.col-8.my-3 > ul > li:nth-child(3)').text().replace(' Following',''),
-bio: $('#user-page > div.user > div > div.col-md-5.my-3 > div').text()}
-resolve(result)})})}
