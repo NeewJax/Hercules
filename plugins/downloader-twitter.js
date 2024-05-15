@@ -16,17 +16,16 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         // Obtém o link de download diretamente do texto dentro do elemento 'pre'
         const downloadLink = await page.$eval('pre', element => {
             const json = JSON.parse(element.textContent);
-            return json.data.download;
+            return json.data.download_data.best_video_quality;
         });
 
         await browser.close();
 
+        const response = await axios.get(downloadLink, { responseType: 'arraybuffer' });
 
-        const tweetData = jsonData.result;
-        const tweetVideoUrl = tweetData.media[0].url;
 
         // Envie o vídeo
-        await conn.sendFile(m.chat, tweetVideoUrl, 'video.mp4', '', m);
+        await conn.sendFile(m.chat, Buffer.from(response.data), 'video.mp4', '', m);
     } catch (error) {
         console.log('Erro:', error);
         throw `*[❗𝐈𝐍𝐅𝐎❗] Ocorreu um erro ao baixar o vídeo. Por favor, tente novamente.*`;
