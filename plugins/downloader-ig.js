@@ -9,7 +9,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     try {
         const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // using --no-sandbox to launch on aws instance
         const page = await browser.newPage();
-        await page.goto(`http://thejaxapi.rf.gd/api/instagram/insta-downloader.php?link=${args[0]}`);
+        await page.goto(`http://thejaxapi.rf.gd/api/instagram/insta-downloader2.php?link=${args[0]}`);
 
         // Espera até que o elemento com o link de download esteja disponível na página
         await page.waitForSelector('pre', { timeout: 60000 }); // Aumentando o tempo limite para 60 segundos
