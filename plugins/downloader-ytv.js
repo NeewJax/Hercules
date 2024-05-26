@@ -3,53 +3,29 @@ import yts from 'yt-search';
 import ytdl from 'ytdl-core';
 import axios from 'axios';
 
-// Defina a chave da API do Lol Human
-const lolkeysapi = 'sua_chave_da_api';
 
 let handler = async (m, { conn, args, usedPrefix, command }) => {
     if (!args[0]) throw '*[❗𝐈𝐍𝐅𝐎❗] Insira o comando e o link de um vídeo no youtube!*';
+    m.reply(`*✅ Fazendo o download, por favor aguarde um momento...*`);
 
-    let youtubeLink = '';
-    if (args[0].includes('you')) {
-        youtubeLink = args[0];
-    } else {
-        const index = parseInt(args[0]) - 1;
-        if (index >= 0) {
-            if (Array.isArray(global.videoList) && global.videoList.length > 0) {
-                const matchingItem = global.videoList.find(item => item.from === m.sender);
-                if (matchingItem) {
-                    if (index < matchingItem.urls.length) {
-                        youtubeLink = matchingItem.urls[index];
-                    } else {
-                        throw `*[❗] Nenhum link encontrado para esse número, digite um número entre 1 e ${matchingItem.urls.length}*`;
-                    }
-                } else {
-                    throw `*[❗] Para poder usar este comando assim (${usedPrefix + command} <numero>), Pesquise vídeos com o comando ${usedPrefix}playlist <texto>*`;
-                }
-            } else {
-                throw `*[❗] Para poder usar este comando assim (${usedPrefix + command} <numero>), Pesquise vídeos com o comando ${usedPrefix}playlist <texto>*`;
-            }
-        }
-    }
-
-    await m.reply(`*_⏳Seu vídeo está sendo baixado...⏳_*\n\n*◉ Se o seu vídeo não for enviado, tente usar o comando #playdoc ou #play.2 ou #ytmp4doc ◉*`);
-
-    try {
-        let mediaa = await ytMp4(youtubeLink);
-        await conn.sendMessage(m.chat, { video: { url: mediaa.result }, fileName: `error.mp4`, caption: `_The Hercules Bot_`, thumbnail: mediaa.thumb, mimetype: 'video/mp4' }, { quoted: m });
-    } catch (E2) {
         try {
-            let lolhuman = await fetch(`https://api.lolhuman.xyz/api/ytvideo2?apikey=${lolkeysapi}&url=${youtubeLink}`);
-            let lolh = await lolhuman.json();
-            let n = lolh.result.title || 'error';
-            let n2 = lolh.result.link;
-            let n3 = lolh.result.size;
-            let n4 = lolh.result.thumbnail;
+            const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // using --no-sandbox to launch on aws instance
+            const page = await browser.newPage();
+            await page.goto(`https://delirius-api-oficial.vercel.app/api/ytmp4?url=${args[0]}`);
+            await page.waitForSelector('pre', { timeout: 20000 }); // Aumentando o tempo limite para 20 segundos
+            // Obtém o link de download diretamente do texto dentro do elemento 'pre'
+            const downloadLink = await page.$eval('pre', element => {
+                const json = JSON.parse(element.textContent);
+                // Acessa o primeiro elemento do array de downloads
+                return json.data.url;
+            });
+
+            await browser.close();
+
             await conn.sendMessage(m.chat, { video: { url: n2 }, fileName: `${n}.mp4`, mimetype: 'video/mp4', caption: `▢ Titulo: ${n}\n▢ Peso do vídeo: ${n3}`, thumbnail: await fetch(n4) }, { quoted: m });
         } catch (E3) {
             await conn.reply(m.chat, '*[❗] Erro não foi possível baixar o seu vídeo!*', m);
         }
-    }
 };
 
 handler.command = /^video|fgmp4|dlmp4|getvid|yt(v|mp4)?$/i;
