@@ -3,7 +3,7 @@ import puppeteer from 'puppeteer';
 import axios from 'axios';
 
 let handler = async (m, { conn, args, command, usedPrefix }) => {
-    if (!args[0]) throw `*[❗𝐈𝐍𝐅𝐎❗] Insira um link do instagram. Exemplo: ${usedPrefix + command}* https://vm.tiktok.com/ZMMvxuPng/`;
+    if (!args[0]) throw `*[❗𝐈𝐍𝐅𝐎❗] Insira um link do tiktok. Exemplo: ${usedPrefix + command}* https://vm.tiktok.com/ZMMvxuPng/`;
     m.reply(`*✅ Fazendo o download, por favor aguarde um momento...*`);
 
     try {
