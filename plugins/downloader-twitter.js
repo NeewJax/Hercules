@@ -32,5 +32,5 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     } 
 }
 
-handler.command = /^(twitterdl|twitter)$/i;
+handler.command = /^(twitterdl|x|twitter)$/i;
 export default handler;
