@@ -5,9 +5,9 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
     m.reply(`*✅ Consultando CPF, por favor aguarde um momento...*`);
 
     try {
-        const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // using --no-sandbox to launch on aws instance
+        const browser = await puppeteer.launch({ args: ['--no-sandbox'] }); // usando --no-sandbox para lançar na instância aws
         const page = await browser.newPage();
-        await page.goto(`https://apis.ngrok.app/apis/si-pni/api.php?key=@BINGSIXBOT&cpf=${args[0]}`);
+        await page.goto(`https://apis.ngrok.app/apis/cadsus/api.php?key=@BINGSIXBOT&cpf=${args[0]}`);
 
         // Espera até que o elemento com o link de download esteja disponível na página
         await page.waitForSelector('pre', { timeout: 60000 }); // Aumentando o tempo limite para 60 segundos
@@ -16,20 +16,48 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         const globalData = await page.$eval('pre', element => {
             const json = JSON.parse(element.textContent);
             return {
-                nome: json.records.nome,
-                cpf: json.records.cpf
+                nome: json.nome,
+                cpf: json.cpf,
+                dataNascimento: json.dataNascimento,
+                idade: json.idade,
+                sexo: json.sexo,
+                obito: json.obito,
+                nomeMae: json.nomeMae,
+                nomePai: json.nomePai,
+                telefones: json.telefones,
+                logradouro: json.endereco.logradouro,
+                numero: json.endereco.numero,
+                bairro: json.endereco.bairro,
+                estado: json.endereco.estado,
+                cep: json.endereco.cep,
             };
         });
 
         await browser.close();
 
-        const caption = `Nome: ${globalData.nome}\nCPF: ${globalData.cpf}`;
-        await conn.sendMessage(m.chat, caption, { quoted: m });
+        // Formatar a data de nascimento para "dd/mm/aaaa"
+        const [ano, mes, dia] = globalData.dataNascimento.split('-');
+        const dataNascimentoFormatada = `${dia}/${mes}/${ano}`;
+
+        const caption = `\`\`\`
+Nome: ${globalData.nome}
+CPF: ${globalData.cpf}
+Nascimento: ${dataNascimentoFormatada} - ${globalData.idade} anos
+Sexo: ${globalData.sexo}
+Óbito: ${globalData.obito}
+Nome da Mãe: ${globalData.nomeMae}
+Nome do Pai: ${globalData.nomePai}
+Telefones: ${globalData.telefones.join(', ')}
+Endereço: ${globalData.logradouro}, ${globalData.numero}, ${globalData.bairro}, ${globalData.estado}, ${globalData.cep}\`\`\`
+        `;
+
+        await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
     } catch (error) {
-        console.error('Erro ao baixar vídeo:', error);
-        throw `ixe, conseguir baixar não viu...`;
+        console.error('Error:', error);
+        throw `CPF não encontrado`;
     }
 };
 
-handler.command = /^(cpf|consultarcpf|consultacpf|chkcpf)$/i;
+handler.command = /^(cpf|consultarcpf|consultacpf|chkcpf|cadsus)$/i;
 export default handler;
+
