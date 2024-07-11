@@ -18,6 +18,7 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
             return {
                 nome: json.nome,
                 cpf: json.cpf,
+                cns: json.cns,
                 dataNascimento: json.dataNascimento,
                 idade: json.idade,
                 sexo: json.sexo,
@@ -30,6 +31,10 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
                 bairro: json.endereco.bairro,
                 estado: json.endereco.estado,
                 cep: json.endereco.cep,
+                nacionalidade: {
+                    municipioNascimento: json.nacionalidade.municipioNascimento,
+                    ufNascimento: json.nacionalidade.ufNascimento
+                }
             };
         });
 
@@ -39,16 +44,28 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
         const [ano, mes, dia] = globalData.dataNascimento.split('-');
         const dataNascimentoFormatada = `${dia}/${mes}/${ano}`;
 
-        const caption = `\`\`\`
-Nome: ${globalData.nome}
-CPF: ${globalData.cpf}
-Nascimento: ${dataNascimentoFormatada} - ${globalData.idade} anos
-Sexo: ${globalData.sexo}
-Óbito: ${globalData.obito}
-Nome da Mãe: ${globalData.nomeMae}
-Nome do Pai: ${globalData.nomePai}
-Telefones: ${globalData.telefones.join(', ')}
-Endereço: ${globalData.logradouro}, ${globalData.numero}, ${globalData.bairro}, ${globalData.estado}, ${globalData.cep}\`\`\`
+        const caption = `\`\`\`    - CONSULTA DE CPF VIA CADSUS - \n
+[*] Dados Gerais [*] \n
+Nome: ${globalData.nome} \n
+CPF: ${globalData.cpf} \n
+CNS (CARTÃO NACIONAL DE SAUDE): ${globalData.cns} \n
+Nome da Mãe: ${globalData.nomeMae} \n
+Nome do Pai: ${globalData.nomePai} \n
+Nascimento: ${dataNascimentoFormatada} - ${globalData.idade} anos \n
+Sexo: ${globalData.sexo} \n
+Óbito: ${globalData.obito} \n
+Cod. IBGE Município de Nascimento: ${globalData.nacionalidade.municipioNascimento} \n
+UF de Nascimento: ${globalData.nacionalidade.ufNascimento} \n
+    
+[*] CONTATO [*]\n
+Telefones: ${globalData.telefones.join(', ')}\n
+
+[*] ENDEREÇO [*]\n
+CEP: ${globalData.cep} \n
+Estado: ${globalData.estado} \n
+Logradouro: ${globalData.logradouro} \n
+Bairro: ${globalData.bairro} \n
+Numero: ${globalData.numero} \n\`\`\`
         `;
 
         await conn.sendMessage(m.chat, { text: caption }, { quoted: m });
