@@ -8,7 +8,10 @@ let handler = async (m, { conn, args }) => {
     try {
         const videoUrl = args[0];
 
-        const browser = await puppeteer.launch({ headless: true });
+        const browser = await puppeteer.launch({
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+        });
         const page = await browser.newPage();
 
         // Acessa a URL da API
