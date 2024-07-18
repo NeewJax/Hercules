@@ -2,7 +2,10 @@ import puppeteer from 'puppeteer';
 import axios from 'axios';
 
 async function getDownloadLink(instagramUrl) {
-    const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
+    const browser = await puppeteer.launch({ 
+        executablePath: '/usr/bin/google-chrome',
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
     const page = await browser.newPage();
     await page.goto(`http://thejaxapi.rf.gd/api/instagram/insta-downloader2.php?link=${instagramUrl}`);
 
