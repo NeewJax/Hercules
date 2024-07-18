@@ -2,8 +2,7 @@ import puppeteer from 'puppeteer';
 import axios from 'axios';
 
 async function getDownloadLink(instagramUrl) {
-    const browser = await puppeteer.launch({ 
-        executablePath: '/usr/bin/google-chrome',
+    const browser = await puppeteer.launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
     const page = await browser.newPage();
@@ -49,3 +48,4 @@ let handler = async (m, { conn, args, command, usedPrefix }) => {
 
 handler.command = /^(instagramdl|instagram|igdl|ig|instagramdl2|instagram2|igdl2|ig2|instagramdl3|instagram3|igdl3|ig3)$/i;
 export default handler;
+
