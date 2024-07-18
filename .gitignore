@@ -3,7 +3,6 @@
 .github
 node_modules
 
-tmp
 jadibts
 pluginpilot
 
@@ -11,4 +10,3 @@ pluginpilot
 
 package-lock.json
 database.json
-MysticSession
