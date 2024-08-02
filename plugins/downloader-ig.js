@@ -1,51 +1,107 @@
-import puppeteer from 'puppeteer';
+import fetch from 'node-fetch';
 import axios from 'axios';
+import instagramGetUrl from 'instagram-url-direct';
+import { instagram } from '@xct007/frieren-scraper';
+import { instagramdl } from '@bochilteam/scraper';
+import instagramDl from '@sasmeee/igdl';
+import { fileTypeFromBuffer } from 'file-type';
 
-async function getDownloadLink(instagramUrl) {
-    const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-    const page = await browser.newPage();
-    await page.goto(`http://thejaxapi.rf.gd/api/instagram/insta-downloader2.php?link=${instagramUrl}`);
+const handler = async (m, { conn, args, command, usedPrefix }) => {
+  if (!args[0]) throw `Por favor, forneça um link do Instagram. Exemplo: _${usedPrefix + command} https://www.instagram.com/reel/C8sWV3Nx_GZ/?igsh=MWZoeTY2cW01Nzg1bQ==`;
+  await m.reply('Por favor, aguarde...');
 
-    // Wait for the download link to be available
-    await page.waitForSelector('pre', { timeout: 60000 });
-
-    // Extract the download link from the page
-    const downloadLink = await page.$eval('pre', element => {
-        const json = JSON.parse(element.textContent);
-        return json.data.download;
-    });
-
-    await browser.close();
-    return downloadLink;
-}
-
-async function downloadVideo(downloadLink) {
-    const response = await axios.get(downloadLink, { responseType: 'arraybuffer' });
-    return Buffer.from(response.data);
-}
-
-let handler = async (m, { conn, args, command, usedPrefix }) => {
-    if (!args[0]) {
-        throw `*[❗𝐈𝐍𝐅𝐎❗] Insira um link do Instagram. Exemplo: ${usedPrefix + command} https://www.instagram.com/reel/Cc0NuYBg8CR/?utm_source=ig_web_copy_link*`;
+  try {
+    const response = await fetch(`https://api.cafirexos.com/api/v1/igdl?url=${encodeURIComponent(args[0])}&apikey=BrunoSobrino`);
+    const json = await response.json();
+    if (json.success && json.data.length > 0) {
+      for (const item of json.data) {
+        if (item.type === 'video') {
+          await conn.sendMessage(m.chat, { video: { url: item.url_download } }, { quoted: m });
+        } else if (item.type === 'audio') {
+          await conn.sendMessage(m.chat, { audio: { url: item.url_download }, mimetype: 'audio/mp4' }, { quoted: m });
+        }
+      }
+    } else {
+      throw new Error('API personalizada falhou');
     }
-
-    m.reply(`*✅ Obtendo link de download, por favor aguarde um momento...*`);
-
+  } catch (err) {
+    console.error('Erro na API personalizada:', err.message);
     try {
-        const instagramUrl = args[0];
-        const downloadLink = await getDownloadLink(instagramUrl);
-        const videoBuffer = await downloadVideo(downloadLink);
-
-        // Send the downloaded video to the user
-        await conn.sendFile(m.chat, videoBuffer, 'video.mp4', '', m);
-    } catch (error) {
-        console.error('Erro ao baixar vídeo:', error);
-        throw `*[❗𝐄𝐑𝐑𝐎❗] Não foi possível baixar o vídeo. Por favor, tente novamente mais tarde.*`;
+      const img = await instagramDl(args[0]);
+      for (let i = 0; i < img.length; i++) {
+        const bufferInfo = await getBuffer(img[i].download_link);
+        if (!bufferInfo) throw new Error('Arquivo não válido');
+        
+        if (bufferInfo.detectedType.mime.startsWith('image/')) {
+          await conn.sendMessage(m.chat, { image: { url: img[i].download_link } }, { quoted: m });
+        } else if (bufferInfo.detectedType.mime.startsWith('video/')) {
+          await conn.sendMessage(m.chat, { video: { url: img[i].download_link } }, { quoted: m });
+        }
+      }
+    } catch (err) {
+      console.error('Erro no instagramDl:', err.message);
+      try {
+        const datTa = await instagram.download(args[0]);
+        for (const urRRl of datTa) {
+          const shortUrRRl = await (await fetch(`https://tinyurl.com/api-create.php?url=${args[0]}`)).text();
+          const tXXxt = `Aqui está o seu link encurtado: _${shortUrRRl}_`.trim();
+          await conn.sendFile(m.chat, urRRl.url, 'error.mp4', tXXxt, m);
+          await new Promise((resolve) => setTimeout(resolve, 10000));
+        }
+      } catch (err) {
+        console.error('Erro no instagram.download:', err.message);
+        try {
+          const resultss = await instagramGetUrl(args[0]);
+          const shortUrl2 = await (await fetch(`https://tinyurl.com/api-create.php?url=${args[0]}`)).text();
+          const txt2 = `Aqui está o seu link encurtado: _${shortUrl2}_`.trim();
+          await conn.sendFile(m.chat, resultss.url_list[0], 'error.mp4', txt2, m);
+        } catch (err) {
+          console.error('Erro no instagramGetUrl:', err.message);
+          try {
+            const resultssss = await instagramdl(args[0]);
+            const shortUrl3 = await (await fetch(`https://tinyurl.com/api-create.php?url=${args[0]}`)).text();
+            const txt4 = `Aqui está o seu link encurtado: _${shortUrl3}_`.trim();
+            for (const { url } of resultssss) await conn.sendFile(m.chat, url, 'error.mp4', txt4, m);
+          } catch (err) {
+            console.error('Erro no instagramdl:', err.message);
+            try {
+              const human = await fetch(`https://api.lolhuman.xyz/api/instagram?apikey=${lolkeysapi}&url=${args[0]}`);
+              const json = await human.json();
+              const videoig = json.result;
+              const shortUrl1 = await (await fetch(`https://tinyurl.com/api-create.php?url=${args[0]}`)).text();
+              const txt1 = `Aqui está o seu link encurtado: _${shortUrl1}_`.trim();
+              await conn.sendFile(m.chat, videoig, 'error.mp4', txt1, m);
+            } catch (err) {
+              console.error('Erro na API lolhuman:', err.message);
+              throw 'Desculpe, houve um erro ao tentar baixar o vídeo.';
+            }
+          }
+        }
+      }
     }
+  }
 };
 
 handler.command = /^(instagramdl|instagram|igdl|ig|instagramdl2|instagram2|igdl2|ig2|instagramdl3|instagram3|igdl3|ig3)$/i;
 export default handler;
 
+const getBuffer = async (url, options = {}) => {
+  try {
+    const res = await axios({
+      method: 'get',
+      url,
+      headers: { 'DNT': 1, 'Upgrade-Insecure-Request': 1 },
+      ...options,
+      responseType: 'arraybuffer'
+    });
+    const buffer = Buffer.from(res.data, 'binary');
+    const detectedType = await fileTypeFromBuffer(buffer);
+    if (!detectedType || !['image/jpeg', 'image/png', 'video/mp4'].includes(detectedType.mime)) {
+      throw new Error('Tipo de arquivo não válido');
+    }
+    return { buffer, detectedType };
+  } catch (error) {
+    console.error('Erro no getBuffer:', error.message);
+    return null;
+  }
+};
